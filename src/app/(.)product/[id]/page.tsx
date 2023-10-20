@@ -1,5 +1,93 @@
-const ProductDetailPage = () => {
-	return <div className='mt-20'>ProductDetailPage</div>
+"use client"
+
+import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react';
+import Product from '@/components/product';
+import { ProductType } from '@/interfaces'
+import { Dialog } from '@headlessui/react'
+import { useRouter } from 'next/navigation'
+import CustomImage from '@/components/image'
+import { StarIcon } from '@heroicons/react/20/solid'
+import {AiOutlineStar} from "react-icons/ai"
+
+const ProductDetailPage =  () => {
+	const [loading, setLoading] = useState(false)
+	const [product, setProduct] = useState<ProductType>()
+	const [isOpen, setIsOpen] = useState(true)
+	const { id } = useParams()
+	const router = useRouter()
+
+	useEffect(() => {
+		const getData = async () => {
+			setLoading(true)
+			const res = await fetch(`https://fakestoreapi.com/products/${id}`)
+			const product = await res.json()
+			setProduct(product)
+			setLoading(false)
+		}
+		
+		getData()
+	}, [id])
+	return (
+		<Dialog
+			open={isOpen}
+			onClose={() => {
+				setIsOpen(false)
+				router.back()
+			}}
+			className={'relative z-50'}
+		>
+			<div className='fixed inset-0 bg-black/30 ' aria-hidden={true} />
+			<div className='fixed inset-0 overflow-y-auto'>
+				<div className='flex min-h-full items-center justify-center p-4'>
+					<Dialog.Panel className={'mx-auto max-w-3xl rounded bg-white p-10'}>
+						{loading ? (
+							<div className='h-8 w-8 border-2 rounded-full border-dotted border-blue-600 animate-spin'></div>
+						) : (
+							<div className='flex gap-x-8 h-96'>
+								{product?.image && (
+									<div className='relative w-72 h-full  md:inline'>
+										<CustomImage product={product} fill />
+									</div>
+								)}
+								<div className='flex-1 flex flex-col'>
+									<div className='flex-1'>
+										<h4 className='font-semibold'>{product?.title}</h4>
+										<p className='font-medium text-sm'>${product?.price}</p>
+										<div className='flex items-center text-sm my-4'>
+											<p>{product?.rating.rate}</p>
+											{product?.rating.rate && (
+												<div className='flex items-center ml-2 mr-6 '>
+													{Array.from(
+														{ length: Math.floor(product.rating.rate) },
+														(_, i) => (
+															<StarIcon
+																key={i}
+																className='h-4 w-4 text-yellow-500'
+															/>
+														)
+													)}
+													{Array.from(
+														{ length: 5-  Math.floor(product.rating.rate) },
+														(_, i) => (
+															<AiOutlineStar
+																key={i}
+																className='h-4 w-4 text-yellow-500'
+															/>
+														)
+													)}
+												</div>
+											)}
+										</div>
+									</div>
+								</div>
+							</div>
+						)}
+					</Dialog.Panel>
+				</div>
+			</div>
+		</Dialog>
+	)
 }
 
 export default ProductDetailPage
