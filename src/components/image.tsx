@@ -11,17 +11,34 @@ interface Props {
 const CustomImage : FC<Props> = ({product, fill}) => {
 	const [isLoading, setIsLoading] = useState(true)
 	return (
-		<Image
-			className={`object-contain duration-700 ease-in-out group-hover:opacity-75 ${
-				isLoading
-					? 'scale-110 blur-2xl grayscale'
-					: 'scale-100 blur-0 grayscale-0'
-			}`}
-			src={product.image}
-			alt={product.title}
-			fill
-			onLoadingComplete={() => setIsLoading(false)}
-		/>
+		<>
+			{(fill && (
+				<Image
+					className={`object-contain duration-700 ease-in-out group-hover:opacity-75 ${
+						isLoading
+							? 'scale-110 blur-2xl grayscale'
+							: 'scale-100 blur-0 grayscale-0'
+					}`}
+					src={product.image}
+					alt={product.title}
+					fill
+					onLoadingComplete={() => setIsLoading(false)}
+				/>
+			)) || (
+				<Image
+					className={`object-contain duration-700 ease-in-out group-hover:opacity-75 ${
+						isLoading
+							? 'scale-110 blur-2xl grayscale'
+							: 'scale-100 blur-0 grayscale-0'
+					}`}
+					src={product.image}
+					alt={product.title}
+					width={400}
+					height={1000}
+					onLoadingComplete={() => setIsLoading(false)}
+				/>
+			)}
+		</>
 	)
 }
 

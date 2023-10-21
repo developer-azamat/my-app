@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react';
@@ -8,7 +8,9 @@ import { Dialog } from '@headlessui/react'
 import { useRouter } from 'next/navigation'
 import CustomImage from '@/components/image'
 import { StarIcon } from '@heroicons/react/20/solid'
-import {AiOutlineStar} from "react-icons/ai"
+import { AiOutlineStar } from "react-icons/ai"
+import { toast } from 'react-toastify';
+
 
 const ProductDetailPage =  () => {
 	const [loading, setLoading] = useState(false)
@@ -16,6 +18,33 @@ const ProductDetailPage =  () => {
 	const [isOpen, setIsOpen] = useState(true)
 	const { id } = useParams()
 	const router = useRouter()
+
+	const handleClick = ()=> {
+		const products : ProductType[] = JSON.parse(localStorage.getItem('carts') as string) || []
+
+		const isExistProduct = products.find(c=> c.id === product?.id)
+
+		if(isExistProduct){
+			const updatedData = products.map(c => {
+				if(c.id === product?.id)	{
+					return (
+						{
+							...c, 
+							quantity: c.quantity + 1,
+						}
+					)
+				}
+
+				return c
+			});
+			
+			localStorage.setItem('carts', JSON.stringify(updatedData))
+			toast("Product added to your bag !!")
+		}else {
+			const data = [...products, { ...product, quantity: 1}];
+			localStorage.setItem("carts", JSON.stringify(data));
+		}
+	}
 
 	useEffect(() => {
 		const getData = async () => {
@@ -68,17 +97,31 @@ const ProductDetailPage =  () => {
 														)
 													)}
 													{Array.from(
-														{ length: 5-  Math.floor(product.rating.rate) },
+														{ length: 5 - Math.floor(product.rating.rate) },
 														(_, i) => (
 															<AiOutlineStar
 																key={i}
-																className='h-4 w-4 text-yellow-500'
+																className='h-4 mt-2 w-4 text-yellow-500'
 															/>
 														)
 													)}
 												</div>
 											)}
+											<p className='text-blue-600 hover:underline cursor-pointer text-xs '>
+												See all {product?.rating.count} reviews
+											</p>
 										</div>
+										<p className='line-clamp-5 text-sm'>
+											{product?.description}
+										</p>
+									</div>
+									<div className='space-y-3 text-sm'>
+										<button onClick={handleClick} className='button w-full bg-blue-600 text-white border-transparent hover:border-blue-600 hover:bg-transparent hover:text-black'>
+											Add to bag
+										</button>
+										<button onClick={()=> window.location.reload()} className='button w-full bg-transparent border-blue-600 hover:border-transparent hover:bg-blue-600 hover:text-white'>
+											View full details
+										</button>
 									</div>
 								</div>
 							</div>
